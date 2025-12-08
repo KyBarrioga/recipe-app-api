@@ -15,6 +15,6 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v3
       - name: Test
-        run: docker compose run --rm app sh -c "python manage.py test"
+        run: docker-compose run --rm app sh -c "python manage.py wait_db_buffer && python manage.py test"
       - name: Lint
-        run: docker compose run --rm app sh -c "flake8"
+        run: docker-compose run --rm app sh -c "flake8"
