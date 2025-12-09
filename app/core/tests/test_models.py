@@ -38,7 +38,9 @@ class ModelsTests(TestCase):
                 email=email,
                 password='testpass123'
             )
-            print(f'Created user {user.username} with email {user.email} expected {expected}')
+            print(
+                f'Created user {user.username} with email \
+                    {user.email} expected {expected}')
             self.assertEqual(user.email, expected)
 
     def test_create_user_without_email_raises_error(self):
