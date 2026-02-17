@@ -8,10 +8,19 @@ from core.models import Product
 
 
 class ProductSerializer(serializers.ModelSerializer):
+
     class Meta:
         model = Product
         fields = ['id', 'name', 'description', 'user', 'price']
         read_only_fields = ['id', 'user']
+
+    def validate(self, attrs):
+        # Check if 'user' is present in the input data (even if read-only)
+        if 'user' in self.initial_data:
+            raise serializers.ValidationError({
+                'user': 'You cannot update the user of a product.'
+            })
+        return super().validate(attrs)
 
     def create(self, validated_data):
         return Product.objects.create(**validated_data)
@@ -20,6 +29,11 @@ class ProductSerializer(serializers.ModelSerializer):
         return instance
 
     def update(self, instance, validated_data):
+        # Raise error if user is in update data
+        if 'user' in validated_data:
+            raise serializers.ValidationError({
+                'user': 'You cannot update the user of a product.'
+            })
         instance.name = validated_data.get('name', instance.name)
         instance.description = validated_data.get(
             'description', instance.description)
@@ -30,5 +44,7 @@ class ProductSerializer(serializers.ModelSerializer):
 
 class ProductDetailSerializer(ProductSerializer):
     class Meta(ProductSerializer.Meta):
-        # Include user field for detailed view
-        fields = ProductSerializer.Meta.fields + ['user']
+        model = Product
+        fields = ProductSerializer.Meta.fields + ['description']
+        read_only_fields = ProductSerializer.Meta.read_only_fields + \
+            ['id', 'user']
