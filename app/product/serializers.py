@@ -7,11 +7,20 @@ from rest_framework import serializers
 from core.models import Product, Tag
 
 
+class TagSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Tag
+        fields = ['id', 'name']
+        read_only_fields = ['id']
+
+
 class ProductSerializer(serializers.ModelSerializer):
+    tags = TagSerializer(many=True, required=False)
 
     class Meta:
         model = Product
-        fields = ['id', 'name', 'description', 'user', 'price']
+        fields = ['id', 'name', 'description', 'user', 'price', 'tags']
         read_only_fields = ['id', 'user']
 
     def validate(self, attrs):
@@ -23,7 +32,19 @@ class ProductSerializer(serializers.ModelSerializer):
         return super().validate(attrs)
 
     def create(self, validated_data):
-        return Product.objects.create(**validated_data)
+        """Create a new product."""
+        tags = validated_data.pop('tags', [])
+        product = Product.objects.create(**validated_data)
+        user = self.context['request'].user
+
+        for tag in tags:
+            tag_obj, created = Tag.objects.get_or_create(
+                user=user,
+                **tag
+            )
+            product.tags.add(tag_obj)
+
+        return product
 
     def retrieve(self, instance):
         return instance
@@ -39,6 +60,17 @@ class ProductSerializer(serializers.ModelSerializer):
             'description', instance.description)
         instance.price = validated_data.get('price', instance.price)
         instance.save()
+
+        # Update tags similar to create logic
+        tags = validated_data.pop('tags', None)
+        if tags is not None:
+            auth_user = self.context['request'].user
+            instance.tags.clear()
+            for tag in tags:
+                tag_obj, created = Tag.objects.get_or_create(
+                    user=auth_user, **tag)
+                instance.tags.add(tag_obj)
+
         return instance
 
 
@@ -48,11 +80,3 @@ class ProductDetailSerializer(ProductSerializer):
         fields = ProductSerializer.Meta.fields + ['description']
         read_only_fields = ProductSerializer.Meta.read_only_fields + \
             ['id', 'user']
-
-
-class TagSerializer(serializers.ModelSerializer):
-
-    class Meta:
-        model = Tag
-        fields = ['id', 'name']
-        read_only_fields = ['id']
