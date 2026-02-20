@@ -189,14 +189,15 @@ class PrivateProductAPITestCase(TestCase):
         """
         payload = {
             'name': 'Avocado Toast',
-            'description': 'Delicious avocado toast with a sprinkle of chili flakes.',
+            'description':
+                'Delicious avocado toast with a sprinkle of chili flakes.',
             'price': 5.00,
             'tags': [{'name': 'Breakfast'}, {'name': 'Healthy'}]
         }
         response = self.client.post(PRODUCT_URL, payload, format='json')
 
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
-        product = Product.objects.get(user = self.user)
+        product = Product.objects.get(user=self.user)
         self.assertEqual(product.tags.count(), 2)
         self.assertTrue(product.tags.filter(name='Breakfast').exists())
         self.assertTrue(product.tags.filter(name='Healthy').exists())
@@ -208,14 +209,15 @@ class PrivateProductAPITestCase(TestCase):
         Tag.objects.create(user=self.user, name='Breakfast')
         payload = {
             'name': 'Avocado Toast',
-            'description': 'Delicious avocado toast with a sprinkle of chili flakes.',
+            'description':
+                'Delicious avocado toast with a sprinkle of chili flakes.',
             'price': 5.00,
             'tags': [{'name': 'Breakfast'}, {'name': 'Healthy'}]
         }
         response = self.client.post(PRODUCT_URL, payload, format='json')
 
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
-        product = Product.objects.get(user = self.user)
+        product = Product.objects.get(user=self.user)
         self.assertEqual(product.tags.count(), 2)
         self.assertTrue(product.tags.filter(name='Breakfast').exists())
         self.assertTrue(product.tags.filter(name='Healthy').exists())
@@ -231,7 +233,7 @@ class PrivateProductAPITestCase(TestCase):
         response = self.client.post(PRODUCT_URL, payload, format='json')
 
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
-        product = Product.objects.get(user = self.user)
+        product = Product.objects.get(user=self.user)
         self.assertEqual(product.tags.count(), 2)
         self.assertTrue(product.tags.filter(name='Tag1').exists())
         self.assertTrue(product.tags.filter(name='Tag2').exists())

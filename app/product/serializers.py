@@ -6,6 +6,7 @@
 from rest_framework import serializers
 from core.models import Product, Tag
 
+
 class TagSerializer(serializers.ModelSerializer):
 
     class Meta:
@@ -13,8 +14,10 @@ class TagSerializer(serializers.ModelSerializer):
         fields = ['id', 'name']
         read_only_fields = ['id']
 
+
 class ProductSerializer(serializers.ModelSerializer):
     tags = TagSerializer(many=True, required=False)
+
     class Meta:
         model = Product
         fields = ['id', 'name', 'description', 'user', 'price', 'tags']
